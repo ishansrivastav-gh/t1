@@ -1,9 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My First Project</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice & Payment Tracker</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Hello World! My repository works.</h1>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Invoice & Payment Tracker</h1>
+      <p class="subtitle">Small Business Financial Dashboard</p>
+    </header>
+
+    <!-- Summary Metrics Cards -->
+    <section class="summary-cards">
+      <div class="card total">
+        <h3>Total Invoiced</h3>
+        <p id="total-amount">$0.00</p>
+      </div>
+      <div class="card paid">
+        <h3>Paid Amount</h3>
+        <p id="paid-amount">$0.00</p>
+      </div>
+      <div class="card pending">
+        <h3>Pending Amount</h3>
+        <p id="pending-amount">$0.00</p>
+      </div>
+      <div class="card overdue">
+        <h3>Overdue Amount</h3>
+        <p id="overdue-amount">$0.00</p>
+      </div>
+    </section>
+
+    <!-- Controls & Actions -->
+    <section class="actions-bar">
+      <div class="search-filter">
+        <input type="text" id="search-input" placeholder="Search customer or invoice #..." oninput="filterInvoices()">
+        <select id="status-filter" onchange="filterInvoices()">
+          <option value="ALL">All Statuses</option>
+          <option value="PAID">Paid</option>
+          <option value="PENDING">Pending</option>
+          <option value="OVERDUE">Overdue</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">+ Create New Invoice</button>
+    </section>
+
+    <!-- Invoice List Table -->
+    <section class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Due Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-table-body">
+          <!-- Invoices will be inserted here dynamically -->
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Create Invoice Modal -->
+  <div class="modal" id="invoice-modal">
+    <div class="modal-content">
+      <h2>Create New Invoice</h2>
+      <form id="invoice-form" onsubmit="saveInvoice(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="customer-name">Customer Name *</label>
+            <input type="text" id="customer-name" required>
+          </div>
+          <div class="form-group">
+            <label for="customer-email">Customer Email</label>
+            <input type="email" id="customer-email">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="due-date">Due Date *</label>
+            <input type="date" id="due-date" required>
+          </div>
+          <div class="form-group">
+            <label for="invoice-status">Status</label>
+            <select id="invoice-status">
+              <option value="PENDING">Pending</option>
+              <option value="PAID">Paid</option>
+            </select>
+          </div>
+        </div>
+
+        <h3>Line Items</h3>
+        <div id="line-items-container">
+          <div class="line-item-row">
+            <input type="text" placeholder="Item description" class="item-desc" required>
+            <input type="number" placeholder="Qty" class="item-qty" min="1" value="1" onchange="calculateFormTotal()" required>
+            <input type="number" placeholder="Rate ($)" class="item-rate" min="0" step="0.01" value="0.00" onchange="calculateFormTotal()" required>
+            <button type="button" class="btn-remove" onclick="removeLineItem(this)">✕</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="addLineItem()">+ Add Item</button>
+
+        <div class="form-total">
+          <strong>Total: </strong><span id="form-total-display">$0.00</span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Printable Invoice Template (Hidden until view/print) -->
+  <div id="print-view" class="print-container">
+    <div class="print-header">
+      <div>
+        <h2>INVOICE</h2>
+        <p id="print-inv-id"></p>
+      </div>
+      <div>
+        <p><strong>Date:</strong> <span id="print-date"></span></p>
+        <p><strong>Due Date:</strong> <span id="print-due-date"></span></p>
+        <p><strong>Status:</strong> <span id="print-status"></span></p>
+      </div>
+    </div>
+    <div class="print-customer">
+      <h4>Billed To:</h4>
+      <p id="print-customer-name"></p>
+      <p id="print-customer-email"></p>
+    </div>
+    <table class="print-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="print-items-body"></tbody>
+    </table>
+    <div class="print-summary">
+      <h3>Total Amount: <span id="print-total"></span></h3>
+    </div>
+    <div class="print-actions">
+      <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+      <button class="btn btn-secondary" onclick="closePrintView()">Close</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
